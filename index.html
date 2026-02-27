@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Practice Website</title>
+    <style>
+        :root {
+            /* Pantone 2025 trend color: Mocha Mousse */
+            --pantone-main: #a47864;
+            --pantone-dark: #8b6655;
+            --pantone-light: #d9b7a8;
+            --pantone-bg: #f3e7e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, var(--pantone-light) 0%, var(--pantone-main) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #333;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f4f4f4;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--pantone-main);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .text-display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            line-height: 1.2;
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre;
+            word-break: break-word;
+        }
+        
+        .text-input {
+            width: 100%;
+            height: 120px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            resize: vertical;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--pantone-main);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 0.8rem 1.5rem;
+            background: var(--pantone-main);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: var(--pantone-dark);
+        }
+        
+        .upload-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--pantone-main);
+            background: var(--pantone-bg);
+        }
+        
+        .character {
+            position: relative;
+        }
+        
+        .character.correct {
+            color: #2ecc71 !important;
+        }
+        
+        .character.incorrect {
+            color: #e74c3c !important;
+            text-decoration: underline;
+        }
+        
+        .character.current {
+            background-color: var(--pantone-main);
+            color: white !important;
+            border-radius: 3px;
+        }
+        
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #e8f4f8;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--pantone-main);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .memorization-controls {
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .memorization-controls label {
+            font-weight: bold;
+        }
+        
+        .memorization-controls input[type="range"] {
+            flex: 1;
+            height: 5px;
+        }
+        
+        .memorization-controls span {
+            font-weight: bold;
+            min-width: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Typing Practice</h1>
+            <p>Improve your typing speed and accuracy</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="wpm">0</div>
+                <div class="stat-label">WPM</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="accuracy">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="timer">0</div>
+                <div class="stat-label">Time (s)</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="text-display" id="textDisplay"></div>
+            
+            <textarea 
+                class="text-input" 
+                id="textInput" 
+                placeholder="Start typing here..." 
+                disabled
+            ></textarea>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn">Start Typing</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+            
+            <div class="memorization-controls">
+                <label for="opacitySlider">Text Visibility:</label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="100">
+                <span id="opacityValue">100%</span>
+            </div>
+            
+            <div class="upload-section">
+                <h3>Upload Your Own Text</h3>
+                <div class="upload-area" id="uploadArea">
+                    <p>Click to select or drag and drop a text file here</p>
+                    <input type="file" id="fileInput" accept=".txt" style="display: none;">
+                </div>
+                <p>Or use sample text:</p>
+                <select id="sampleText" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                    <option value="">Select a sample text</option>
+                    <option value="The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet and is commonly used for typing practice.">English Pangram</option>
+                    <option value="Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using various languages like JavaScript, Python, Java, and C++.">Programming Text</option>
+                    <option value="Typing speed is measured in words per minute. The average typing speed is around 40 words per minute. Professional typists can achieve speeds of 65 to 75 words per minute.">Typing Text</option>
+                </select>
+            </div>
+            
+            <div class="result" id="result">
+                <h3>Typing Results</h3>
+                <p><strong>Final WPM:</strong> <span id="finalWpm"></span></p>
+                <p><strong>Accuracy:</strong> <span id="finalAccuracy"></span></p>
+                <p><strong>Characters:</strong> Correct: <span id="correctChars"></span>, Incorrect: <span id="incorrectChars"></span>, Total: <span id="totalChars"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const textDisplay = document.getElementById('textDisplay');
+            const textInput = document.getElementById('textInput');
+            const startBtn = document.getElementById('startBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const wpmDisplay = document.getElementById('wpm');
+            const accuracyDisplay = document.getElementById('accuracy');
+            const timerDisplay = document.getElementById('timer');
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const sampleText = document.getElementById('sampleText');
+            const resultDiv = document.getElementById('result');
+            const progressBar = document.getElementById('progressBar');
+            const opacitySlider = document.getElementById('opacitySlider');
+            const opacityValue = document.getElementById('opacityValue');
+            
+            // Sample texts
+            const sampleTexts = [
+                "The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet and is commonly used for typing practice.",
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using various languages like JavaScript, Python, Java, and C++.",
+                "Typing speed is measured in words per minute. The average typing speed is around 40 words per minute. Professional typists can achieve speeds of 65 to 75 words per minute."
+            ];
+            
+            // State variables
+            let currentText = sampleTexts[0];
+            let startTime = null;
+            let timerInterval = null;
+            let timeElapsed = 0; // seconds elapsed
+            let totalChars = 0;
+            let correctChars = 0;
+            let incorrectChars = 0;
+            let currentIndex = 0;
+
+            function isTextFile(file) {
+                return !!file && (file.type === 'text/plain' || /\.txt$/i.test(file.name));
+            }
+            
+            // Initialize the page
+            function init() {
+                opacityValue.textContent = opacitySlider.value + '%';
+                renderText();
+                textInput.disabled = true;
+                updateStats();
+            }
+            
+            // Render the text to be typed with styling
+            function renderText() {
+                textDisplay.innerHTML = '';
+                
+                for (let i = 0; i < currentText.length; i++) {
+                    const charSpan = document.createElement('span');
+                    
+                    // Handle carriage return characters that appear as extra spaces
+                    if (currentText[i] === '\r') {
+                        charSpan.textContent = '';
+                    } else {
+                        charSpan.textContent = currentText[i];
+                    }
+                    
+                    charSpan.classList.add('character');
+                    
+                    // Apply opacity based on slider value
+                    const opacityValue = opacitySlider.value / 100;
+                    
+                    if (i < currentIndex) {
+                        if (currentText[i] === textInput.value[i]) {
+                            charSpan.classList.add('correct');
+                            charSpan.style.opacity = '1';
+                        } else {
+                            charSpan.classList.add('incorrect');
+                            charSpan.style.opacity = '1';
+                        }
+                    } else if (i === currentIndex) {
+                        charSpan.classList.add('current');
+                        charSpan.style.opacity = opacityValue.toString();
+                    } else {
+                        charSpan.style.opacity = opacityValue.toString();
+                    }
+                    
+                    textDisplay.appendChild(charSpan);
+                }
+                
+                // Update progress bar
+                const progress = (currentIndex / currentText.length) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            // Scroll to keep current character in view
+            function scrollToCurrentChar() {
+                // Only scroll when the text content is actually taller than the display area
+                if (currentIndex > 0 && textDisplay.scrollHeight > textDisplay.clientHeight) {
+                    const allChars = textDisplay.querySelectorAll('.character');
+                    if (allChars[currentIndex]) {
+                        const currentCharElement = allChars[currentIndex];
+                        
+                        // Get the position of the current character
+                        const containerHeight = textDisplay.clientHeight;
+                        const charTop = currentCharElement.offsetTop;
+                        const charBottom = charTop + currentCharElement.offsetHeight;
+                        
+                        // Only scroll when the character is outside the visible area
+                        // This means we only scroll down when the current character is below the view
+                        if (charBottom > textDisplay.scrollTop + containerHeight) {
+                            // Scroll down just enough to see the character
+                            textDisplay.scrollTop = charBottom - containerHeight + 20;
+                        }
+                    }
+                }
+            }
+            
+            // Update statistics display
+            function updateStats() {
+                if (startTime && !textInput.disabled) {
+                    timeElapsed = (Date.now() - startTime) / 1000;
+                }
+                const wpm = calculateWPM();
+                const accuracy = calculateAccuracy();
+                
+                wpmDisplay.textContent = Math.round(wpm);
+                accuracyDisplay.textContent = `${Math.round(accuracy)}%`;
+                timerDisplay.textContent = Math.floor(timeElapsed);
+            }
+            
+            // Calculate words per minute
+            function calculateWPM() {
+                if (!startTime) return 0;
+                
+                const timeInMinutes = timeElapsed / 60; // in minutes
+                const wordsTyped = correctChars / 5; // Assuming 5 characters = 1 word
+                
+                return timeInMinutes > 0 ? wordsTyped / timeInMinutes : 0;
+            }
+            
+            // Calculate accuracy percentage
+            function calculateAccuracy() {
+                if (totalChars === 0) return 100;
+                return (correctChars / totalChars) * 100;
+            }
+            
+            // Start the typing test
+            function startTyping() {
+                if (!currentText) {
+                    alert('Please select or upload a text to start typing.');
+                    return;
+                }
+                
+                textInput.disabled = false;
+                textInput.value = '';
+                textInput.focus();
+                startTime = Date.now();
+                timeElapsed = 0; // Reset elapsed time
+                totalChars = 0;
+                correctChars = 0;
+                incorrectChars = 0;
+                currentIndex = 0;
+                
+                // Start the timer
+                clearInterval(timerInterval);
+                timerInterval = setInterval(updateTimer, 1000);
+                
+                // Reset result display
+                resultDiv.classList.remove('show');
+                
+                renderText();
+                // Ensure the display starts at the top
+                textDisplay.scrollTop = 0;
+                updateStats();
+            }
+            
+            // Update the timer
+            function updateTimer() {
+                timeElapsed = (Date.now() - startTime) / 1000;
+                updateStats();
+            }
+            
+            // Finish the typing test
+            function finishTest() {
+                clearInterval(timerInterval);
+                timeElapsed = (Date.now() - startTime) / 1000;
+                textInput.disabled = true;
+                
+                // Calculate final stats
+                const finalWpm = calculateWPM();
+                const finalAccuracy = calculateAccuracy();
+                
+                // Update result display
+                document.getElementById('finalWpm').textContent = Math.round(finalWpm);
+                document.getElementById('finalAccuracy').textContent = `${Math.round(finalAccuracy)}%`;
+                document.getElementById('correctChars').textContent = correctChars;
+                document.getElementById('incorrectChars').textContent = incorrectChars;
+                document.getElementById('totalChars').textContent = totalChars;
+                
+                resultDiv.classList.add('show');
+            }
+            
+            // Handle input changes
+            function handleInput() {
+                const typedValue = textInput.value;
+                
+                if (!startTime) {
+                    startTime = Date.now();
+                }
+                
+                // Calculate characters stats
+                totalChars = typedValue.length;
+                correctChars = 0;
+                incorrectChars = 0;
+                
+                for (let i = 0; i < typedValue.length; i++) {
+                    if (i < currentText.length && typedValue[i] === currentText[i]) {
+                        correctChars++;
+                    } else {
+                        incorrectChars++;
+                    }
+                }
+                
+                // Update current index for highlighting
+                currentIndex = typedValue.length;
+                
+                // Check if the user has completed the text
+                if (currentIndex >= currentText.length && currentText.length > 0) {
+                    finishTest();
+                }
+                
+                renderText();
+                // Only scroll after a short delay to ensure DOM is updated
+                setTimeout(() => {
+                    scrollToCurrentChar();
+                }, 10);
+                updateStats();
+            }
+            
+            // Reset the test
+            function resetTest() {
+                clearInterval(timerInterval);
+                textInput.disabled = true;
+                textInput.value = '';
+                startTime = null;
+                timeElapsed = 0;
+                totalChars = 0;
+                correctChars = 0;
+                incorrectChars = 0;
+                currentIndex = 0;
+                
+                resultDiv.classList.remove('show');
+                
+                renderText();
+                // Ensure the display starts at the top
+                if (textDisplay) {
+                    textDisplay.scrollTop = 0;
+                }
+                updateStats();
+            }
+            
+            // Load text from file
+            function loadTextFromFile(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Normalize line endings to ensure consistency
+                    currentText = e.target.result.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                    resetTest();
+                    renderText();
+                };
+                
+                reader.onerror = function() {
+                    alert('Error reading file');
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // Event listeners
+            startBtn.addEventListener('click', startTyping);
+            
+            resetBtn.addEventListener('click', resetTest);
+            
+            textInput.addEventListener('input', handleInput);
+            
+            // Opacity slider event
+            opacitySlider.addEventListener('input', function() {
+                opacityValue.textContent = this.value + '%';
+                renderText();
+            });
+            
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a47864';
+                uploadArea.style.backgroundColor = '#f3e7e1';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#ccc';
+                uploadArea.style.backgroundColor = '';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ccc';
+                uploadArea.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    const file = e.dataTransfer.files[0];
+                    if (isTextFile(file)) {
+                        loadTextFromFile(file);
+                    } else {
+                        alert('Please upload a text file (.txt)');
+                    }
+                }
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    const file = this.files[0];
+                    if (isTextFile(file)) {
+                        loadTextFromFile(file);
+                    } else {
+                        alert('Please upload a text file (.txt)');
+                    }
+                }
+            });
+            
+            sampleText.addEventListener('change', function() {
+                if (this.value) {
+                    currentText = this.value;
+                    resetTest();
+                    renderText();
+                }
+            });
+            
+            // Initialize the page
+            init();
+        });
+    </script>
+</body>
+</html>
