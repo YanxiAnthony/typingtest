@@ -25,6 +25,7 @@
             background: linear-gradient(135deg, var(--pantone-light) 0%, var(--pantone-main) 100%);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
         
         .container {
@@ -41,6 +42,28 @@
             color: white;
             padding: 1.5rem;
             text-align: center;
+        }
+
+        .header-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 0.6rem;
+        }
+
+        .language-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .language-control select {
+            padding: 0.25rem 0.45rem;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            background: #fff;
+            color: #333;
+            font-size: 0.9rem;
         }
         
         h1 {
@@ -83,11 +106,12 @@
             margin-bottom: 1.5rem;
             font-size: 1.2rem;
             line-height: 1.2;
-            min-height: 150px;
-            max-height: 200px;
+            height: 200px;
             overflow-y: auto;
-            white-space: pre;
-            word-break: break-word;
+            overflow-x: hidden;
+            white-space: pre-wrap;
+            word-break: normal;
+            overflow-wrap: break-word;
         }
         
         .text-input {
@@ -97,7 +121,12 @@
             border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 1.1rem;
-            resize: vertical;
+            resize: none;
+            overflow-x: hidden;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: normal;
+            overflow-wrap: break-word;
         }
         
         .text-input:focus {
@@ -132,6 +161,27 @@
             padding: 1.5rem;
             background: #f9f9f9;
             border-radius: 5px;
+        }
+
+        .folder-articles {
+            margin: 0.8rem 0 1.2rem;
+        }
+
+        .folder-articles select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .article-status {
+            margin-top: 0.45rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .article-status.error {
+            color: #b03a2e;
+            font-weight: bold;
         }
         
         .upload-area {
@@ -214,37 +264,209 @@
             font-weight: bold;
             min-width: 40px;
         }
+
+        .accuracy-controls {
+            margin: 1rem 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .accuracy-controls label {
+            font-weight: bold;
+        }
+
+        .accuracy-controls select {
+            padding: 0.45rem 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            color: #333;
+        }
+
+        .render-hint {
+            margin: -0.8rem 0 1rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .window-marker {
+            color: #777;
+            font-style: italic;
+        }
+
+        .mode-controls {
+            margin: 0 0 1.2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .field label {
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .field input,
+        .field select {
+            padding: 0.45rem 0.55rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            background: #fff;
+        }
+
+        .toggle-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 0.4rem;
+        }
+
+        .toggle-field label {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #444;
+            font-weight: bold;
+        }
+
+        .mode-hint {
+            margin: -0.5rem 0 1rem;
+            font-size: 0.86rem;
+            color: #666;
+        }
+
+        .mode-intro-panel {
+            margin: 0.6rem 0 1.1rem;
+        }
+
+        .mode-intro-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #5a4137;
+            margin-bottom: 0.45rem;
+        }
+
+        .mode-intro-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mode-intro-item {
+            border: 1px solid #d7c2b8;
+            background: #fff6f1;
+            color: #4a3b33;
+            border-radius: 999px;
+            padding: 0.28rem 0.7rem;
+            font-size: 0.83rem;
+            cursor: help;
+            line-height: 1.2;
+        }
+
+        .mode-intro-item:focus-visible {
+            outline: 2px solid var(--pantone-main);
+            outline-offset: 2px;
+        }
+
+        .mode-intro-hint {
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: #7a655b;
+        }
+
+        .mode-tooltip {
+            position: fixed;
+            z-index: 1000;
+            max-width: 340px;
+            background: rgba(36, 31, 29, 0.95);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0.58rem 0.72rem;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+            pointer-events: none;
+        }
+
+        .review-grid {
+            margin-top: 0.8rem;
+            display: grid;
+            gap: 0.4rem;
+        }
+
+        .warning-text {
+            margin-top: 0.6rem;
+            color: #b03a2e;
+            font-weight: bold;
+        }
+
+        .success-text {
+            margin-top: 0.6rem;
+            color: #1f7a47;
+            font-weight: bold;
+        }
+
+        @media (max-width: 640px) {
+            .stats {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Typing Practice</h1>
-            <p>Improve your typing speed and accuracy</p>
+            <div class="header-toolbar">
+                <div class="language-control">
+                    <label for="languageSelect" id="languageLabel">Language</label>
+                    <select id="languageSelect">
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
+            <h1 id="headerTitle">Typing Practice</h1>
+            <p id="headerSubtitle">Improve your typing speed and accuracy</p>
         </header>
         
         <div class="stats">
             <div class="stat-box">
                 <div class="stat-value" id="wpm">0</div>
-                <div class="stat-label">WPM</div>
+                <div class="stat-label" id="wpmLabel">WPM</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="accuracy">100%</div>
-                <div class="stat-label">Accuracy</div>
+                <div class="stat-label" id="accuracyLabel">Accuracy (Result)</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="timer">0</div>
-                <div class="stat-label">Time (s)</div>
+                <div class="stat-label" id="timerLabel">Time (s)</div>
             </div>
         </div>
         
         <div class="content">
             <div class="text-display" id="textDisplay"></div>
+            <div class="render-hint" id="renderHint"></div>
             
             <textarea 
                 class="text-input" 
                 id="textInput" 
                 placeholder="Start typing here..." 
+                wrap="soft"
                 disabled
             ></textarea>
             
@@ -258,374 +480,104 @@
             </div>
             
             <div class="memorization-controls">
-                <label for="opacitySlider">Text Visibility:</label>
+                <label for="opacitySlider" id="opacityLabel">Text Visibility:</label>
                 <input type="range" id="opacitySlider" min="0" max="100" value="100">
                 <span id="opacityValue">100%</span>
             </div>
+
+            <div class="accuracy-controls">
+                <label for="accuracyMode" id="accuracyModeLabel">Accuracy Mode:</label>
+                <select id="accuracyMode">
+                    <option value="result" id="accuracyOptionResult">Result Accuracy</option>
+                    <option value="process" id="accuracyOptionProcess">Process Accuracy</option>
+                </select>
+            </div>
+
+            <div class="mode-controls">
+                <div class="field">
+                    <label for="trainingMode" id="trainingModeLabel">Training Mode</label>
+                    <select id="trainingMode">
+                        <option value="classic" id="modeOptionClassic">Classic</option>
+                        <option value="timed" id="modeOptionTimed">Timed</option>
+                        <option value="segment" id="modeOptionSegment">Segment</option>
+                        <option value="blind" id="modeOptionBlind">Blind</option>
+                        <option value="error" id="modeOptionError">Error Focus</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="timedSeconds" id="timedSecondsLabel">Timed Seconds</label>
+                    <input type="number" id="timedSeconds" min="15" max="600" step="5" value="60">
+                </div>
+                <div class="field">
+                    <label for="segmentLength" id="segmentLengthLabel">Segment Length</label>
+                    <input type="number" id="segmentLength" min="60" max="1200" step="20" value="180">
+                </div>
+                <div class="toggle-field">
+                    <input type="checkbox" id="adaptiveToggle" checked>
+                    <label for="adaptiveToggle" id="adaptiveToggleLabel">Adaptive Difficulty</label>
+                </div>
+            </div>
+            <div class="mode-hint" id="modeHint"></div>
+            <div class="mode-intro-panel">
+                <p class="mode-intro-title" id="modeIntroTitle">Mode Guide</p>
+                <div class="mode-intro-list">
+                    <button type="button" class="mode-intro-item" data-mode="classic" id="modeInfoClassic">Classic</button>
+                    <button type="button" class="mode-intro-item" data-mode="timed" id="modeInfoTimed">Timed</button>
+                    <button type="button" class="mode-intro-item" data-mode="segment" id="modeInfoSegment">Segment</button>
+                    <button type="button" class="mode-intro-item" data-mode="blind" id="modeInfoBlind">Blind</button>
+                    <button type="button" class="mode-intro-item" data-mode="error" id="modeInfoError">Error Focus</button>
+                </div>
+                <p class="mode-intro-hint" id="modeIntroHint">Hover over a mode name to view details.</p>
+            </div>
+            <div class="mode-tooltip" id="modeTooltip" role="tooltip" hidden></div>
             
             <div class="upload-section">
-                <h3>Upload Your Own Text</h3>
+                <h3 id="uploadTitle">Upload Your Own Text</h3>
                 <div class="upload-area" id="uploadArea">
-                    <p>Click to select or drag and drop a text file here</p>
+                    <p id="uploadHint">Click to select or drag and drop a text file here</p>
                     <input type="file" id="fileInput" accept=".txt" style="display: none;">
                 </div>
-                <p>Or use sample text:</p>
+                <div class="folder-articles">
+                    <p id="folderListLabel">Or use folder article list:</p>
+                    <select id="articleSelect">
+                        <option value="">Loading folder articles...</option>
+                    </select>
+                    <p class="article-status" id="articleStatus"></p>
+                </div>
+                <p id="sampleListLabel">Or use sample text:</p>
                 <select id="sampleText" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
-                    <option value="">Select a sample text</option>
-                    <option value="The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet and is commonly used for typing practice.">English Pangram</option>
-                    <option value="Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using various languages like JavaScript, Python, Java, and C++.">Programming Text</option>
-                    <option value="Typing speed is measured in words per minute. The average typing speed is around 40 words per minute. Professional typists can achieve speeds of 65 to 75 words per minute.">Typing Text</option>
+                    <option value="" id="samplePlaceholder">Select a sample text</option>
                 </select>
             </div>
             
             <div class="result" id="result">
-                <h3>Typing Results</h3>
-                <p><strong>Final WPM:</strong> <span id="finalWpm"></span></p>
-                <p><strong>Accuracy:</strong> <span id="finalAccuracy"></span></p>
-                <p><strong>Characters:</strong> Correct: <span id="correctChars"></span>, Incorrect: <span id="incorrectChars"></span>, Total: <span id="totalChars"></span></p>
+                <h3 id="resultTitle">Typing Results</h3>
+                <p><strong id="finalWpmLabel">Final WPM:</strong> <span id="finalWpm"></span></p>
+                <p><strong id="finalResultAccuracyLabel">Result Accuracy:</strong> <span id="finalResultAccuracy"></span></p>
+                <p><strong id="finalProcessAccuracyLabel">Process Accuracy:</strong> <span id="finalProcessAccuracy"></span></p>
+                <p>
+                    <strong id="resultCharsLabel">Result Characters:</strong>
+                    <span id="resultCorrectLabel">Correct:</span> <span id="correctChars"></span>,
+                    <span id="resultIncorrectLabel">Incorrect:</span> <span id="incorrectChars"></span>,
+                    <span id="resultTotalLabel">Total:</span> <span id="totalChars"></span>
+                </p>
+                <p>
+                    <strong id="processCharsLabel">Process Keystrokes:</strong>
+                    <span id="processCorrectLabel">Correct:</span> <span id="processCorrectChars"></span>,
+                    <span id="processIncorrectLabel">Incorrect:</span> <span id="processIncorrectChars"></span>,
+                    <span id="processTotalLabel">Total:</span> <span id="processTotalChars"></span>
+                </p>
+                <p><strong id="errorRateLabel">Error Rate:</strong> <span id="errorRate"></span></p>
+                <div class="review-grid">
+                    <p><strong id="topErrorCharsLabel">Top Error Characters:</strong> <span id="topErrorChars"></span></p>
+                    <p><strong id="topErrorWordsLabel">Top Error Words:</strong> <span id="topErrorWords"></span></p>
+                    <p><strong id="trainingSuggestionLabel">Training Suggestion:</strong> <span id="reviewSuggestion"></span></p>
+                </div>
+                <p id="antiCheatStatus"></p>
+                <p><strong id="adaptiveUpdateLabel">Adaptive Update:</strong> <span id="adaptiveUpdate"></span></p>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const textDisplay = document.getElementById('textDisplay');
-            const textInput = document.getElementById('textInput');
-            const startBtn = document.getElementById('startBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const wpmDisplay = document.getElementById('wpm');
-            const accuracyDisplay = document.getElementById('accuracy');
-            const timerDisplay = document.getElementById('timer');
-            const fileInput = document.getElementById('fileInput');
-            const uploadArea = document.getElementById('uploadArea');
-            const sampleText = document.getElementById('sampleText');
-            const resultDiv = document.getElementById('result');
-            const progressBar = document.getElementById('progressBar');
-            const opacitySlider = document.getElementById('opacitySlider');
-            const opacityValue = document.getElementById('opacityValue');
-            
-            // Sample texts
-            const sampleTexts = [
-                "The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet and is commonly used for typing practice.",
-                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using various languages like JavaScript, Python, Java, and C++.",
-                "Typing speed is measured in words per minute. The average typing speed is around 40 words per minute. Professional typists can achieve speeds of 65 to 75 words per minute."
-            ];
-            
-            // State variables
-            let currentText = sampleTexts[0];
-            let startTime = null;
-            let timerInterval = null;
-            let timeElapsed = 0; // seconds elapsed
-            let totalChars = 0;
-            let correctChars = 0;
-            let incorrectChars = 0;
-            let currentIndex = 0;
-
-            function isTextFile(file) {
-                return !!file && (file.type === 'text/plain' || /\.txt$/i.test(file.name));
-            }
-            
-            // Initialize the page
-            function init() {
-                opacityValue.textContent = opacitySlider.value + '%';
-                renderText();
-                textInput.disabled = true;
-                updateStats();
-            }
-            
-            // Render the text to be typed with styling
-            function renderText() {
-                textDisplay.innerHTML = '';
-                
-                for (let i = 0; i < currentText.length; i++) {
-                    const charSpan = document.createElement('span');
-                    
-                    // Handle carriage return characters that appear as extra spaces
-                    if (currentText[i] === '\r') {
-                        charSpan.textContent = '';
-                    } else {
-                        charSpan.textContent = currentText[i];
-                    }
-                    
-                    charSpan.classList.add('character');
-                    
-                    // Apply opacity based on slider value
-                    const opacityValue = opacitySlider.value / 100;
-                    
-                    if (i < currentIndex) {
-                        if (currentText[i] === textInput.value[i]) {
-                            charSpan.classList.add('correct');
-                            charSpan.style.opacity = '1';
-                        } else {
-                            charSpan.classList.add('incorrect');
-                            charSpan.style.opacity = '1';
-                        }
-                    } else if (i === currentIndex) {
-                        charSpan.classList.add('current');
-                        charSpan.style.opacity = opacityValue.toString();
-                    } else {
-                        charSpan.style.opacity = opacityValue.toString();
-                    }
-                    
-                    textDisplay.appendChild(charSpan);
-                }
-                
-                // Update progress bar
-                const progress = (currentIndex / currentText.length) * 100;
-                progressBar.style.width = `${progress}%`;
-            }
-            
-            // Scroll to keep current character in view
-            function scrollToCurrentChar() {
-                // Only scroll when the text content is actually taller than the display area
-                if (currentIndex > 0 && textDisplay.scrollHeight > textDisplay.clientHeight) {
-                    const allChars = textDisplay.querySelectorAll('.character');
-                    if (allChars[currentIndex]) {
-                        const currentCharElement = allChars[currentIndex];
-                        
-                        // Get the position of the current character
-                        const containerHeight = textDisplay.clientHeight;
-                        const charTop = currentCharElement.offsetTop;
-                        const charBottom = charTop + currentCharElement.offsetHeight;
-                        
-                        // Only scroll when the character is outside the visible area
-                        // This means we only scroll down when the current character is below the view
-                        if (charBottom > textDisplay.scrollTop + containerHeight) {
-                            // Scroll down just enough to see the character
-                            textDisplay.scrollTop = charBottom - containerHeight + 20;
-                        }
-                    }
-                }
-            }
-            
-            // Update statistics display
-            function updateStats() {
-                if (startTime && !textInput.disabled) {
-                    timeElapsed = (Date.now() - startTime) / 1000;
-                }
-                const wpm = calculateWPM();
-                const accuracy = calculateAccuracy();
-                
-                wpmDisplay.textContent = Math.round(wpm);
-                accuracyDisplay.textContent = `${Math.round(accuracy)}%`;
-                timerDisplay.textContent = Math.floor(timeElapsed);
-            }
-            
-            // Calculate words per minute
-            function calculateWPM() {
-                if (!startTime) return 0;
-                
-                const timeInMinutes = timeElapsed / 60; // in minutes
-                const wordsTyped = correctChars / 5; // Assuming 5 characters = 1 word
-                
-                return timeInMinutes > 0 ? wordsTyped / timeInMinutes : 0;
-            }
-            
-            // Calculate accuracy percentage
-            function calculateAccuracy() {
-                if (totalChars === 0) return 100;
-                return (correctChars / totalChars) * 100;
-            }
-            
-            // Start the typing test
-            function startTyping() {
-                if (!currentText) {
-                    alert('Please select or upload a text to start typing.');
-                    return;
-                }
-                
-                textInput.disabled = false;
-                textInput.value = '';
-                textInput.focus();
-                startTime = Date.now();
-                timeElapsed = 0; // Reset elapsed time
-                totalChars = 0;
-                correctChars = 0;
-                incorrectChars = 0;
-                currentIndex = 0;
-                
-                // Start the timer
-                clearInterval(timerInterval);
-                timerInterval = setInterval(updateTimer, 1000);
-                
-                // Reset result display
-                resultDiv.classList.remove('show');
-                
-                renderText();
-                // Ensure the display starts at the top
-                textDisplay.scrollTop = 0;
-                updateStats();
-            }
-            
-            // Update the timer
-            function updateTimer() {
-                timeElapsed = (Date.now() - startTime) / 1000;
-                updateStats();
-            }
-            
-            // Finish the typing test
-            function finishTest() {
-                clearInterval(timerInterval);
-                timeElapsed = (Date.now() - startTime) / 1000;
-                textInput.disabled = true;
-                
-                // Calculate final stats
-                const finalWpm = calculateWPM();
-                const finalAccuracy = calculateAccuracy();
-                
-                // Update result display
-                document.getElementById('finalWpm').textContent = Math.round(finalWpm);
-                document.getElementById('finalAccuracy').textContent = `${Math.round(finalAccuracy)}%`;
-                document.getElementById('correctChars').textContent = correctChars;
-                document.getElementById('incorrectChars').textContent = incorrectChars;
-                document.getElementById('totalChars').textContent = totalChars;
-                
-                resultDiv.classList.add('show');
-            }
-            
-            // Handle input changes
-            function handleInput() {
-                const typedValue = textInput.value;
-                
-                if (!startTime) {
-                    startTime = Date.now();
-                }
-                
-                // Calculate characters stats
-                totalChars = typedValue.length;
-                correctChars = 0;
-                incorrectChars = 0;
-                
-                for (let i = 0; i < typedValue.length; i++) {
-                    if (i < currentText.length && typedValue[i] === currentText[i]) {
-                        correctChars++;
-                    } else {
-                        incorrectChars++;
-                    }
-                }
-                
-                // Update current index for highlighting
-                currentIndex = typedValue.length;
-                
-                // Check if the user has completed the text
-                if (currentIndex >= currentText.length && currentText.length > 0) {
-                    finishTest();
-                }
-                
-                renderText();
-                // Only scroll after a short delay to ensure DOM is updated
-                setTimeout(() => {
-                    scrollToCurrentChar();
-                }, 10);
-                updateStats();
-            }
-            
-            // Reset the test
-            function resetTest() {
-                clearInterval(timerInterval);
-                textInput.disabled = true;
-                textInput.value = '';
-                startTime = null;
-                timeElapsed = 0;
-                totalChars = 0;
-                correctChars = 0;
-                incorrectChars = 0;
-                currentIndex = 0;
-                
-                resultDiv.classList.remove('show');
-                
-                renderText();
-                // Ensure the display starts at the top
-                if (textDisplay) {
-                    textDisplay.scrollTop = 0;
-                }
-                updateStats();
-            }
-            
-            // Load text from file
-            function loadTextFromFile(file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    // Normalize line endings to ensure consistency
-                    currentText = e.target.result.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-                    resetTest();
-                    renderText();
-                };
-                
-                reader.onerror = function() {
-                    alert('Error reading file');
-                };
-                
-                reader.readAsText(file);
-            }
-            
-            // Event listeners
-            startBtn.addEventListener('click', startTyping);
-            
-            resetBtn.addEventListener('click', resetTest);
-            
-            textInput.addEventListener('input', handleInput);
-            
-            // Opacity slider event
-            opacitySlider.addEventListener('input', function() {
-                opacityValue.textContent = this.value + '%';
-                renderText();
-            });
-            
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#a47864';
-                uploadArea.style.backgroundColor = '#f3e7e1';
-            });
-            
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = '#ccc';
-                uploadArea.style.backgroundColor = '';
-            });
-            
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#ccc';
-                uploadArea.style.backgroundColor = '';
-                
-                if (e.dataTransfer.files.length) {
-                    const file = e.dataTransfer.files[0];
-                    if (isTextFile(file)) {
-                        loadTextFromFile(file);
-                    } else {
-                        alert('Please upload a text file (.txt)');
-                    }
-                }
-            });
-            
-            fileInput.addEventListener('change', function() {
-                if (this.files.length) {
-                    const file = this.files[0];
-                    if (isTextFile(file)) {
-                        loadTextFromFile(file);
-                    } else {
-                        alert('Please upload a text file (.txt)');
-                    }
-                }
-            });
-            
-            sampleText.addEventListener('change', function() {
-                if (this.value) {
-                    currentText = this.value;
-                    resetTest();
-                    renderText();
-                }
-            });
-            
-            // Initialize the page
-            init();
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

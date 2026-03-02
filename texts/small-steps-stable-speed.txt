@@ -1,0 +1,5 @@
+Stable speed is built through small steps. Increase challenge only after your current level is repeatable. If your score swings wildly between attempts, the system is not stable yet.
+
+Pick one improvement axis per round. You can increase text length, reduce text visibility, or tighten time limits. Do not increase all three at once. Controlled progression makes performance trends meaningful.
+
+At the end of each round, write one short note: what failed, why it failed, and what to try next. These notes turn random practice into structured learning.

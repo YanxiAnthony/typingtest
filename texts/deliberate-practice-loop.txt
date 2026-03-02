@@ -1,0 +1,5 @@
+Deliberate practice is not about typing as fast as possible on every line. It is about running short loops with clear feedback. Start with a manageable pace, measure where you miss, and isolate the exact keys or words that create friction.
+
+A useful loop has four steps. First, run a short attempt with steady rhythm. Second, inspect your mistakes and identify one narrow target. Third, drill that target for a few minutes. Fourth, run another short attempt and compare the result.
+
+When this loop is repeated, speed grows without losing control. Accuracy comes first, rhythm comes second, and speed emerges as a side effect of consistent correction.

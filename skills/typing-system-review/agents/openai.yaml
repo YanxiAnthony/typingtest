@@ -1,0 +1,4 @@
+interface:
+  display_name: "Typing System Review"
+  short_description: "Strict audits for typing logic and architecture quality"
+  default_prompt: "Use $typing-system-review to run a strict system-level review of this typing project."
