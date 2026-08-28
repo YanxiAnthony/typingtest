@@ -1,583 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Practice Website</title>
-    <style>
-        :root {
-            /* Pantone 2025 trend color: Mocha Mousse */
-            --pantone-main: #a47864;
-            --pantone-dark: #8b6655;
-            --pantone-light: #d9b7a8;
-            --pantone-bg: #f3e7e1;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: linear-gradient(135deg, var(--pantone-light) 0%, var(--pantone-main) 100%);
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        header {
-            background: #333;
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .header-toolbar {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 0.6rem;
-        }
-
-        .language-control {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .language-control select {
-            padding: 0.25rem 0.45rem;
-            border: 1px solid #bbb;
-            border-radius: 5px;
-            background: #fff;
-            color: #333;
-            font-size: 0.9rem;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            background: #f4f4f4;
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .stat-box {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--pantone-main);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .content {
-            padding: 2rem;
-        }
-        
-        .text-display {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.2rem;
-            line-height: 1.2;
-            height: 200px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            white-space: pre-wrap;
-            word-break: normal;
-            overflow-wrap: break-word;
-        }
-        
-        .text-input {
-            width: 100%;
-            height: 120px;
-            padding: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            resize: none;
-            overflow-x: hidden;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: normal;
-            overflow-wrap: break-word;
-        }
-        
-        .text-input:focus {
-            outline: none;
-            border-color: var(--pantone-main);
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin: 1.5rem 0;
-            gap: 10px;
-        }
-        
-        button {
-            padding: 0.8rem 1.5rem;
-            background: var(--pantone-main);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: var(--pantone-dark);
-        }
-        
-        .upload-section {
-            margin: 2rem 0;
-            padding: 1.5rem;
-            background: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .folder-articles {
-            margin: 0.8rem 0 1.2rem;
-        }
-
-        .folder-articles select {
-            width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .article-status {
-            margin-top: 0.45rem;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .article-status.error {
-            color: #b03a2e;
-            font-weight: bold;
-        }
-        
-        .upload-area {
-            border: 2px dashed #ccc;
-            padding: 2rem;
-            text-align: center;
-            margin: 1rem 0;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--pantone-main);
-            background: var(--pantone-bg);
-        }
-        
-        .character {
-            position: relative;
-        }
-        
-        .character.correct {
-            color: #2ecc71 !important;
-        }
-        
-        .character.incorrect {
-            color: #e74c3c !important;
-            text-decoration: underline;
-        }
-        
-        .character.current {
-            background-color: var(--pantone-main);
-            color: white !important;
-            border-radius: 3px;
-        }
-        
-        .result {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background: #e8f4f8;
-            border-radius: 5px;
-            display: none;
-        }
-        
-        .result.show {
-            display: block;
-        }
-        
-        .progress-bar {
-            height: 5px;
-            background: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-        
-        .progress {
-            height: 100%;
-            background: var(--pantone-main);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .memorization-controls {
-            margin: 1.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .memorization-controls label {
-            font-weight: bold;
-        }
-        
-        .memorization-controls input[type="range"] {
-            flex: 1;
-            height: 5px;
-        }
-        
-        .memorization-controls span {
-            font-weight: bold;
-            min-width: 40px;
-        }
-
-        .accuracy-controls {
-            margin: 1rem 0 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .accuracy-controls label {
-            font-weight: bold;
-        }
-
-        .accuracy-controls select {
-            padding: 0.45rem 0.6rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
-            color: #333;
-        }
-
-        .render-hint {
-            margin: -0.8rem 0 1rem;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .window-marker {
-            color: #777;
-            font-style: italic;
-        }
-
-        .mode-controls {
-            margin: 0 0 1.2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            align-items: end;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-        }
-
-        .field label {
-            font-size: 0.85rem;
-            color: #555;
-            font-weight: bold;
-        }
-
-        .field input,
-        .field select {
-            padding: 0.45rem 0.55rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 0.95rem;
-            background: #fff;
-        }
-
-        .toggle-field {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 0.4rem;
-        }
-
-        .toggle-field label {
-            margin: 0;
-            font-size: 0.9rem;
-            color: #444;
-            font-weight: bold;
-        }
-
-        .mode-hint {
-            margin: -0.5rem 0 1rem;
-            font-size: 0.86rem;
-            color: #666;
-        }
-
-        .mode-intro-panel {
-            margin: 0.6rem 0 1.1rem;
-        }
-
-        .mode-intro-title {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #5a4137;
-            margin-bottom: 0.45rem;
-        }
-
-        .mode-intro-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .mode-intro-item {
-            border: 1px solid #d7c2b8;
-            background: #fff6f1;
-            color: #4a3b33;
-            border-radius: 999px;
-            padding: 0.28rem 0.7rem;
-            font-size: 0.83rem;
-            cursor: help;
-            line-height: 1.2;
-        }
-
-        .mode-intro-item:focus-visible {
-            outline: 2px solid var(--pantone-main);
-            outline-offset: 2px;
-        }
-
-        .mode-intro-hint {
-            margin-top: 0.4rem;
-            font-size: 0.8rem;
-            color: #7a655b;
-        }
-
-        .mode-tooltip {
-            position: fixed;
-            z-index: 1000;
-            max-width: 340px;
-            background: rgba(36, 31, 29, 0.95);
-            color: #fff;
-            border-radius: 8px;
-            padding: 0.58rem 0.72rem;
-            font-size: 0.84rem;
-            line-height: 1.45;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
-            pointer-events: none;
-        }
-
-        .review-grid {
-            margin-top: 0.8rem;
-            display: grid;
-            gap: 0.4rem;
-        }
-
-        .warning-text {
-            margin-top: 0.6rem;
-            color: #b03a2e;
-            font-weight: bold;
-        }
-
-        .success-text {
-            margin-top: 0.6rem;
-            color: #1f7a47;
-            font-weight: bold;
-        }
-
-        @media (max-width: 640px) {
-            .stats {
-                flex-wrap: wrap;
-                gap: 12px;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Concept English</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/theme.js" defer></script>
+  <script src="assets/resource-store.js" defer></script>
+  <script src="assets/resources.js" defer></script>
+  <script src="assets/library.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-toolbar">
-                <div class="language-control">
-                    <label for="languageSelect" id="languageLabel">Language</label>
-                    <select id="languageSelect">
-                        <option value="zh">中文</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-            </div>
-            <h1 id="headerTitle">Typing Practice</h1>
-            <p id="headerSubtitle">Improve your typing speed and accuracy</p>
-        </header>
-        
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-value" id="wpm">0</div>
-                <div class="stat-label" id="wpmLabel">WPM</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="accuracy">100%</div>
-                <div class="stat-label" id="accuracyLabel">Accuracy (Result)</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="timer">0</div>
-                <div class="stat-label" id="timerLabel">Time (s)</div>
-            </div>
-        </div>
-        
-        <div class="content">
-            <div class="text-display" id="textDisplay"></div>
-            <div class="render-hint" id="renderHint"></div>
-            
-            <textarea 
-                class="text-input" 
-                id="textInput" 
-                placeholder="Start typing here..." 
-                wrap="soft"
-                disabled
-            ></textarea>
-            
-            <div class="progress-bar">
-                <div class="progress" id="progressBar"></div>
-            </div>
-            
-            <div class="controls">
-                <button id="startBtn">Start Typing</button>
-                <button id="resetBtn">Reset</button>
-            </div>
-            
-            <div class="memorization-controls">
-                <label for="opacitySlider" id="opacityLabel">Text Visibility:</label>
-                <input type="range" id="opacitySlider" min="0" max="100" value="100">
-                <span id="opacityValue">100%</span>
-            </div>
+  <div class="container">
+    <header class="home-header">
+      <button id="themeToggleBtn" class="icon-button theme-button" type="button" aria-label="切换深浅主题">◐</button>
+      <p class="eyebrow">STUDY TEST</p>
+      <h1>New Concept English</h1>
+      <p>导入同名的 MP3 和 LRC，进行逐句听读与打字练习。</p>
+    </header>
 
-            <div class="accuracy-controls">
-                <label for="accuracyMode" id="accuracyModeLabel">Accuracy Mode:</label>
-                <select id="accuracyMode">
-                    <option value="result" id="accuracyOptionResult">Result Accuracy</option>
-                    <option value="process" id="accuracyOptionProcess">Process Accuracy</option>
-                </select>
-            </div>
-
-            <div class="mode-controls">
-                <div class="field">
-                    <label for="trainingMode" id="trainingModeLabel">Training Mode</label>
-                    <select id="trainingMode">
-                        <option value="classic" id="modeOptionClassic">Classic</option>
-                        <option value="timed" id="modeOptionTimed">Timed</option>
-                        <option value="segment" id="modeOptionSegment">Segment</option>
-                        <option value="blind" id="modeOptionBlind">Blind</option>
-                        <option value="error" id="modeOptionError">Error Focus</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label for="timedSeconds" id="timedSecondsLabel">Timed Seconds</label>
-                    <input type="number" id="timedSeconds" min="15" max="600" step="5" value="60">
-                </div>
-                <div class="field">
-                    <label for="segmentLength" id="segmentLengthLabel">Segment Length</label>
-                    <input type="number" id="segmentLength" min="60" max="1200" step="20" value="180">
-                </div>
-                <div class="toggle-field">
-                    <input type="checkbox" id="adaptiveToggle" checked>
-                    <label for="adaptiveToggle" id="adaptiveToggleLabel">Adaptive Difficulty</label>
-                </div>
-            </div>
-            <div class="mode-hint" id="modeHint"></div>
-            <div class="mode-intro-panel">
-                <p class="mode-intro-title" id="modeIntroTitle">Mode Guide</p>
-                <div class="mode-intro-list">
-                    <button type="button" class="mode-intro-item" data-mode="classic" id="modeInfoClassic">Classic</button>
-                    <button type="button" class="mode-intro-item" data-mode="timed" id="modeInfoTimed">Timed</button>
-                    <button type="button" class="mode-intro-item" data-mode="segment" id="modeInfoSegment">Segment</button>
-                    <button type="button" class="mode-intro-item" data-mode="blind" id="modeInfoBlind">Blind</button>
-                    <button type="button" class="mode-intro-item" data-mode="error" id="modeInfoError">Error Focus</button>
-                </div>
-                <p class="mode-intro-hint" id="modeIntroHint">Hover over a mode name to view details.</p>
-            </div>
-            <div class="mode-tooltip" id="modeTooltip" role="tooltip" hidden></div>
-            
-            <div class="upload-section">
-                <h3 id="uploadTitle">Upload Your Own Text</h3>
-                <div class="upload-area" id="uploadArea">
-                    <p id="uploadHint">Click to select or drag and drop a text file here</p>
-                    <input type="file" id="fileInput" accept=".txt" style="display: none;">
-                </div>
-                <div class="folder-articles">
-                    <p id="folderListLabel">Or use folder article list:</p>
-                    <select id="articleSelect">
-                        <option value="">Loading folder articles...</option>
-                    </select>
-                    <p class="article-status" id="articleStatus"></p>
-                </div>
-                <p id="sampleListLabel">Or use sample text:</p>
-                <select id="sampleText" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
-                    <option value="" id="samplePlaceholder">Select a sample text</option>
-                </select>
-            </div>
-            
-            <div class="result" id="result">
-                <h3 id="resultTitle">Typing Results</h3>
-                <p><strong id="finalWpmLabel">Final WPM:</strong> <span id="finalWpm"></span></p>
-                <p><strong id="finalResultAccuracyLabel">Result Accuracy:</strong> <span id="finalResultAccuracy"></span></p>
-                <p><strong id="finalProcessAccuracyLabel">Process Accuracy:</strong> <span id="finalProcessAccuracy"></span></p>
-                <p>
-                    <strong id="resultCharsLabel">Result Characters:</strong>
-                    <span id="resultCorrectLabel">Correct:</span> <span id="correctChars"></span>,
-                    <span id="resultIncorrectLabel">Incorrect:</span> <span id="incorrectChars"></span>,
-                    <span id="resultTotalLabel">Total:</span> <span id="totalChars"></span>
-                </p>
-                <p>
-                    <strong id="processCharsLabel">Process Keystrokes:</strong>
-                    <span id="processCorrectLabel">Correct:</span> <span id="processCorrectChars"></span>,
-                    <span id="processIncorrectLabel">Incorrect:</span> <span id="processIncorrectChars"></span>,
-                    <span id="processTotalLabel">Total:</span> <span id="processTotalChars"></span>
-                </p>
-                <p><strong id="errorRateLabel">Error Rate:</strong> <span id="errorRate"></span></p>
-                <div class="review-grid">
-                    <p><strong id="topErrorCharsLabel">Top Error Characters:</strong> <span id="topErrorChars"></span></p>
-                    <p><strong id="topErrorWordsLabel">Top Error Words:</strong> <span id="topErrorWords"></span></p>
-                    <p><strong id="trainingSuggestionLabel">Training Suggestion:</strong> <span id="reviewSuggestion"></span></p>
-                </div>
-                <p id="antiCheatStatus"></p>
-                <p><strong id="adaptiveUpdateLabel">Adaptive Update:</strong> <span id="adaptiveUpdate"></span></p>
-            </div>
+    <main class="library" aria-labelledby="libraryTitle">
+      <div class="library-header">
+        <div>
+          <h2 id="libraryTitle">课程</h2>
+          <span id="libraryCount" class="muted"></span>
         </div>
-    </div>
-    <script src="app.js"></script>
+        <div class="library-actions">
+          <select id="libraryFilter" aria-label="筛选课程">
+            <option value="all">全部课程</option>
+          </select>
+          <button id="importOpenBtn" class="primary-button" type="button">＋ 导入其他资源</button>
+        </div>
+      </div>
+
+      <section id="libraryEmpty" class="empty-state" hidden>
+        <h2>还没有课程</h2>
+        <p>选择包含 MP3 和同名 LRC 的文件夹即可开始。</p>
+        <button id="emptyImportBtn" class="primary-button" type="button">选择文件夹</button>
+      </section>
+
+      <div id="lessonsGrid" class="lesson-grid"></div>
+    </main>
+  </div>
+
+  <div id="importModal" class="modal-backdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+      <button id="importClose" class="modal-close" type="button" aria-label="关闭">×</button>
+      <h2 id="importTitle">导入音频与字幕</h2>
+      <p class="muted">MP3 和 LRC 文件名相同即可自动配对。</p>
+      <div class="import-options">
+        <button id="importFolderBtn" type="button"><strong>选择文件夹</strong><span>适合批量导入整个 NCE 目录</span></button>
+        <button id="importFilesBtn" type="button"><strong>选择文件</strong><span>多选若干音频和 LRC</span></button>
+        <button id="importZipBtn" type="button"><strong>选择 ZIP</strong><span>直接读取压缩包中的资源</span></button>
+      </div>
+      <p id="importStatus" class="import-status" aria-live="polite"></p>
+      <input id="importFolderInput" type="file" webkitdirectory directory multiple hidden>
+      <input id="importFilesInput" type="file" accept=".mp3,.m4a,.ogg,.wav,.lrc" multiple hidden>
+      <input id="importZipInput" type="file" accept=".zip" hidden>
+    </section>
+  </div>
 </body>
 </html>

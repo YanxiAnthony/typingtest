@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typing Browser Smoke Test</title>
+  <script src="../assets/lesson-core.js"></script>
+  <script src="../assets/typing-core.js"></script>
+</head>
+<body>
+  <pre id="result">正在测试…</pre>
+  <script>
+    const failures = [];
+    if (!window.EchoLessonCore) failures.push('EchoLessonCore 未加载');
+    if (!window.EchoTypingCore) failures.push('EchoTypingCore 未加载');
+    if (window.EchoTypingCore && !window.EchoTypingCore.compareText('abc', 'abc').isComplete) {
+      failures.push('完成态判断错误');
+    }
+    if (window.EchoLessonCore && window.EchoLessonCore.formatTime(65) !== '1:05') {
+      failures.push('时间格式化错误');
+    }
+    const result = document.getElementById('result');
+    result.textContent = failures.length ? '失败：\n' + failures.join('\n') : '通过';
+    result.dataset.status = failures.length ? 'failed' : 'passed';
+  </script>
+</body>
+</html>
