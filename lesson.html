@@ -31,11 +31,17 @@
             <option value="2">2×</option>
           </select>
         </label>
-        <label class="rate-control">播放模式
-          <select id="playMode" aria-label="播放模式">
-            <option value="once" selected>播完暂停</option>
-            <option value="loop">无限循环</option>
-            <option value="sequence">顺序播放</option>
+        <label class="rate-control">单句播完
+          <select id="sentenceMode" aria-label="单句播放完后的行为">
+            <option value="once" selected>暂停</option>
+            <option value="loop">单句循环</option>
+            <option value="sequence">自动下一句</option>
+          </select>
+        </label>
+        <label class="rate-control">整课播完
+          <select id="lessonLoopMode" aria-label="整课播放完后的行为">
+            <option value="once" selected>停止</option>
+            <option value="loop">整课循环</option>
           </select>
         </label>
         <button id="themeToggleBtn" class="icon-button" type="button" aria-label="切换深浅主题">◐</button>
@@ -101,6 +107,7 @@
   </div>
 
   <div class="bottom-player" role="region" aria-label="音频播放器">
+    <span id="loopBadge" class="player-loop-badge" hidden></span>
     <button id="playPauseBtn" class="player-button" type="button" aria-label="播放或暂停">▶</button>
     <span id="currentTime" class="player-time">0:00</span>
     <div id="progressBar" class="player-progress" role="slider" aria-label="播放进度" tabindex="0">

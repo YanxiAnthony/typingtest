@@ -3,7 +3,10 @@
 
   const POSITION_KEY = 'echo_lesson_positions';
   const RATE_KEY = 'echo_playback_rate';
-  const MODE_KEY = 'echo_play_mode';
+  const SENTENCE_MODE_KEY = 'echo_sentence_mode';
+  const LESSON_LOOP_KEY = 'echo_lesson_loop';
+  // 旧版单一播放模式的存储键，仅用于迁移旧设置
+  const LEGACY_MODE_KEY = 'echo_play_mode';
 
   function lessonHref(lesson) {
     return 'lesson.html#' + encodeURIComponent(lesson.book) + '/' + encodeURIComponent(lesson.filename);
@@ -32,7 +35,9 @@
     const progressBar = document.getElementById('progressBar');
     const progressFilled = document.getElementById('progressFilled');
     const rateSelect = document.getElementById('playbackRate');
-    const modeSelect = document.getElementById('playMode');
+    const sentenceModeSelect = document.getElementById('sentenceMode');
+    const lessonLoopSelect = document.getElementById('lessonLoopMode');
+    const loopBadge = document.getElementById('loopBadge');
     const prevLink = document.getElementById('prevLesson');
     const nextLink = document.getElementById('nextLesson');
     const notification = document.getElementById('notification');
@@ -43,7 +48,9 @@
     let segmentIndex = -1;
     let playSingleSegment = false;
     let segmentWatchId = 0;
-    let playMode = 'once';
+    let sentenceMode = 'once';
+    let lessonLoopMode = 'once';
+    let lastBadgeText = null;
     let objectAudioUrl = '';
     let lastSave = 0;
     let defaultCatalog = null;
@@ -110,12 +117,12 @@
 
     function finishSegmentPlayback() {
       const index = segmentIndex;
-      if (playMode === 'loop' && items[index]) {
+      if (sentenceMode === 'loop' && items[index]) {
         audio.currentTime = Math.max(0, items[index].start);
         segmentEnd = endFor(index);
         return;
       }
-      if (playMode === 'sequence' && items[index + 1]) {
+      if (sentenceMode === 'sequence' && items[index + 1]) {
         const next = index + 1;
         segmentIndex = next;
         setActive(next, true);
@@ -151,6 +158,29 @@
       catch (_) { notify('点击播放按钮开始音频'); }
     }
 
+    // 播放期间在底部播放器上实时显示当前生效的循环：单句循环/自动连播/整课循环
+    function loopBadgeText() {
+      if (audio.paused) return '';
+      if (playSingleSegment) {
+        if (sentenceMode === 'loop') return '单句循环';
+        if (sentenceMode === 'sequence') return '自动连播';
+        return '';
+      }
+      return lessonLoopMode === 'loop' ? '整课循环' : '';
+    }
+
+    function updateLoopBadge() {
+      const text = loopBadgeText();
+      if (!loopBadge || text === lastBadgeText) return;
+      lastBadgeText = text;
+      if (text) {
+        loopBadge.textContent = text;
+        loopBadge.hidden = false;
+      } else {
+        loopBadge.hidden = true;
+      }
+    }
+
     function updatePlayer() {
       const current = audio.currentTime || 0;
       const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
@@ -159,8 +189,9 @@
       progressFilled.style.width = duration ? Math.min(100, current / duration * 100) + '%' : '0%';
       playButton.textContent = audio.paused ? '▶' : 'Ⅱ';
 
-      // 整课播放时无限循环用原生 loop；单句播放（含单句循环、顺序播放）由 JS 在句边界 seek
-      audio.loop = playMode === 'loop' && !playSingleSegment;
+      // 整课播放时循环用原生 loop；单句播放（含单句循环、自动下一句）由 JS 在句边界 seek
+      audio.loop = lessonLoopMode === 'loop' && !playSingleSegment;
+      updateLoopBadge();
 
       if (audio.paused) cancelSegmentWatch();
 
@@ -262,11 +293,21 @@
       const savedRate = Number(localStorage.getItem(RATE_KEY)) || 1;
       audio.playbackRate = savedRate;
       rateSelect.value = String(savedRate);
-      const savedMode = localStorage.getItem(MODE_KEY);
-      if (savedMode === 'loop' || savedMode === 'sequence' || savedMode === 'once') {
-        playMode = savedMode;
-        if (modeSelect) modeSelect.value = savedMode;
+      const savedSentence = localStorage.getItem(SENTENCE_MODE_KEY);
+      const savedLessonLoop = localStorage.getItem(LESSON_LOOP_KEY);
+      const legacyMode = localStorage.getItem(LEGACY_MODE_KEY);
+      if (savedSentence === 'loop' || savedSentence === 'sequence' || savedSentence === 'once') {
+        sentenceMode = savedSentence;
+      } else if (legacyMode === 'loop' || legacyMode === 'sequence') {
+        sentenceMode = legacyMode;
       }
+      if (savedLessonLoop === 'loop' || savedLessonLoop === 'once') {
+        lessonLoopMode = savedLessonLoop;
+      } else if (legacyMode === 'loop') {
+        lessonLoopMode = 'loop';
+      }
+      if (sentenceModeSelect) sentenceModeSelect.value = sentenceMode;
+      if (lessonLoopSelect) lessonLoopSelect.value = lessonLoopMode;
 
       audio.addEventListener('loadedmetadata', function () {
         if (items.length && !items[items.length - 1].end) items[items.length - 1].end = audio.duration;
@@ -302,12 +343,20 @@
         try { localStorage.setItem(RATE_KEY, String(rate)); } catch (_) { }
       });
 
-      // 兼容缓存的旧版 lesson.html（没有播放模式选择器）：元素缺失时不接线，页面其余功能照常
-      if (modeSelect) {
-        modeSelect.addEventListener('change', function () {
-          const value = modeSelect.value;
-          playMode = value === 'loop' || value === 'sequence' ? value : 'once';
-          try { localStorage.setItem(MODE_KEY, playMode); } catch (_) { }
+      // 兼容缓存的旧版 lesson.html（没有单句/整课控件）：元素缺失时不接线，页面其余功能照常
+      if (sentenceModeSelect) {
+        sentenceModeSelect.addEventListener('change', function () {
+          const value = sentenceModeSelect.value;
+          sentenceMode = value === 'loop' || value === 'sequence' ? value : 'once';
+          try { localStorage.setItem(SENTENCE_MODE_KEY, sentenceMode); } catch (_) { }
+          updateLoopBadge();
+        });
+      }
+      if (lessonLoopSelect) {
+        lessonLoopSelect.addEventListener('change', function () {
+          lessonLoopMode = lessonLoopSelect.value === 'loop' ? 'loop' : 'once';
+          try { localStorage.setItem(LESSON_LOOP_KEY, lessonLoopMode); } catch (_) { }
+          updateLoopBadge();
         });
       }
 
