@@ -7,7 +7,7 @@ set "APP_URL=http://127.0.0.1:%PORT%/"
 set "HEALTH_URL=http://127.0.0.1:%PORT%/api/health"
 
 rem Reuse the server if this project is already running.
-powershell -NoProfile -Command "try { Invoke-WebRequest -UseBasicParsing '%HEALTH_URL%' -TimeoutSec 1 | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
+powershell -NoProfile -Command "try { Invoke-WebRequest -UseBasicParsing '%HEALTH_URL%' -TimeoutSec 3 | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
 if not errorlevel 1 goto open_app
 
 where py >nul 2>&1

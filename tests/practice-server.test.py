@@ -6,6 +6,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from contextlib import closing
 from functools import partial
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -42,7 +43,7 @@ class PracticeDatabaseTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_migrations_are_versioned_and_idempotent(self):
-        with sqlite3.connect(self.db_path) as connection:
+        with closing(sqlite3.connect(self.db_path)) as connection:
             self.assertEqual(connection.execute("PRAGMA user_version").fetchone()[0], len(MIGRATIONS))
             tables = {
                 row[0]
@@ -52,22 +53,22 @@ class PracticeDatabaseTests(unittest.TestCase):
         self.assertIn("practice_baselines", tables)
 
         PracticeDatabase(self.db_path)
-        with sqlite3.connect(self.db_path) as connection:
+        with closing(sqlite3.connect(self.db_path)) as connection:
             self.assertEqual(connection.execute("PRAGMA user_version").fetchone()[0], len(MIGRATIONS))
 
     def test_existing_unversioned_schema_is_adopted(self):
         legacy_path = Path(self.temp_dir.name) / "legacy.db"
-        with sqlite3.connect(legacy_path) as connection:
+        with closing(sqlite3.connect(legacy_path)) as connection:
             connection.executescript(MIGRATIONS[0])
             self.assertEqual(connection.execute("PRAGMA user_version").fetchone()[0], 0)
 
         PracticeDatabase(legacy_path)
-        with sqlite3.connect(legacy_path) as connection:
+        with closing(sqlite3.connect(legacy_path)) as connection:
             self.assertEqual(connection.execute("PRAGMA user_version").fetchone()[0], len(MIGRATIONS))
 
     def test_newer_schema_is_not_silently_downgraded(self):
         future_path = Path(self.temp_dir.name) / "future.db"
-        with sqlite3.connect(future_path) as connection:
+        with closing(sqlite3.connect(future_path)) as connection:
             connection.execute(f"PRAGMA user_version = {len(MIGRATIONS) + 1}")
         with self.assertRaisesRegex(RuntimeError, "newer than supported"):
             PracticeDatabase(future_path)
@@ -84,7 +85,7 @@ class PracticeDatabaseTests(unittest.TestCase):
         self.assertEqual(first["acceptedIds"], ["attempt-1"])
         self.assertEqual(first["rejectedAttempts"], [{"id": "bad", "reason": "missing_completed_at"}])
         self.assertEqual(second["acceptedIds"], ["attempt-1"])
-        with sqlite3.connect(self.db_path) as connection:
+        with closing(sqlite3.connect(self.db_path)) as connection:
             self.assertEqual(connection.execute("SELECT COUNT(*) FROM practice_attempts").fetchone()[0], 1)
 
     def test_baselines_only_move_forward(self):

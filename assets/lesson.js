@@ -3,6 +3,7 @@
 
   const POSITION_KEY = 'echo_lesson_positions';
   const RATE_KEY = 'echo_playback_rate';
+  const MODE_KEY = 'echo_play_mode';
 
   function lessonHref(lesson) {
     return 'lesson.html#' + encodeURIComponent(lesson.book) + '/' + encodeURIComponent(lesson.filename);
@@ -31,6 +32,7 @@
     const progressBar = document.getElementById('progressBar');
     const progressFilled = document.getElementById('progressFilled');
     const rateSelect = document.getElementById('playbackRate');
+    const modeSelect = document.getElementById('playMode');
     const prevLink = document.getElementById('prevLesson');
     const nextLink = document.getElementById('nextLesson');
     const notification = document.getElementById('notification');
@@ -38,7 +40,10 @@
     let items = [];
     let activeIndex = -1;
     let segmentEnd = 0;
+    let segmentIndex = -1;
     let playSingleSegment = false;
+    let segmentWatchId = 0;
+    let playMode = 'once';
     let objectAudioUrl = '';
     let lastSave = 0;
     let defaultCatalog = null;
@@ -88,15 +93,58 @@
     function endFor(index) {
       const item = items[index];
       if (!item) return 0;
-      if (item.end > item.start) return Math.max(item.start + 0.15, item.end - 0.06);
+      // 句尾裁剪量经人工校准：停在下一句开始前 500ms
+      if (item.end > item.start) return Math.max(item.start + 0.15, item.end - 0.5);
       if (Number.isFinite(audio.duration)) return audio.duration;
       return item.start + 1;
+    }
+
+    // timeupdate 最长约 250ms 才触发一次，停在句尾会串到下一句开头的音节，
+    // 因此单句播放期间用 rAF 逐帧轮询 currentTime；隐藏标签页里 rAF 不触发，由 updatePlayer 里的同条件判断兜底。
+    function cancelSegmentWatch() {
+      if (segmentWatchId) {
+        window.cancelAnimationFrame(segmentWatchId);
+        segmentWatchId = 0;
+      }
+    }
+
+    function finishSegmentPlayback() {
+      const index = segmentIndex;
+      if (playMode === 'loop' && items[index]) {
+        audio.currentTime = Math.max(0, items[index].start);
+        segmentEnd = endFor(index);
+        return;
+      }
+      if (playMode === 'sequence' && items[index + 1]) {
+        const next = index + 1;
+        segmentIndex = next;
+        setActive(next, true);
+        segmentEnd = endFor(next);
+        audio.currentTime = Math.max(0, items[next].start);
+        return;
+      }
+      playSingleSegment = false;
+      cancelSegmentWatch();
+      audio.pause();
+      audio.currentTime = segmentEnd;
+    }
+
+    function watchSegmentEnd() {
+      segmentWatchId = 0;
+      if (!playSingleSegment) return;
+      if ((audio.currentTime || 0) >= segmentEnd) {
+        finishSegmentPlayback();
+        if (playSingleSegment) segmentWatchId = window.requestAnimationFrame(watchSegmentEnd);
+        return;
+      }
+      segmentWatchId = window.requestAnimationFrame(watchSegmentEnd);
     }
 
     async function playSentence(index) {
       if (!items[index]) return;
       setActive(index, true);
       playSingleSegment = true;
+      segmentIndex = index;
       segmentEnd = endFor(index);
       audio.currentTime = Math.max(0, items[index].start);
       try { await audio.play(); }
@@ -111,11 +159,18 @@
       progressFilled.style.width = duration ? Math.min(100, current / duration * 100) + '%' : '0%';
       playButton.textContent = audio.paused ? '▶' : 'Ⅱ';
 
+      // 整课播放时无限循环用原生 loop；单句播放（含单句循环、顺序播放）由 JS 在句边界 seek
+      audio.loop = playMode === 'loop' && !playSingleSegment;
+
+      if (audio.paused) cancelSegmentWatch();
+
       if (playSingleSegment && segmentEnd && current >= segmentEnd) {
-        playSingleSegment = false;
-        audio.pause();
-        audio.currentTime = segmentEnd;
+        finishSegmentPlayback();
         return;
+      }
+
+      if (playSingleSegment && !audio.paused && !segmentWatchId) {
+        segmentWatchId = window.requestAnimationFrame(watchSegmentEnd);
       }
 
       for (let i = items.length - 1; i >= 0; i--) {
@@ -207,6 +262,11 @@
       const savedRate = Number(localStorage.getItem(RATE_KEY)) || 1;
       audio.playbackRate = savedRate;
       rateSelect.value = String(savedRate);
+      const savedMode = localStorage.getItem(MODE_KEY);
+      if (savedMode === 'loop' || savedMode === 'sequence' || savedMode === 'once') {
+        playMode = savedMode;
+        if (modeSelect) modeSelect.value = savedMode;
+      }
 
       audio.addEventListener('loadedmetadata', function () {
         if (items.length && !items[items.length - 1].end) items[items.length - 1].end = audio.duration;
@@ -241,6 +301,15 @@
         audio.playbackRate = rate;
         try { localStorage.setItem(RATE_KEY, String(rate)); } catch (_) { }
       });
+
+      // 兼容缓存的旧版 lesson.html（没有播放模式选择器）：元素缺失时不接线，页面其余功能照常
+      if (modeSelect) {
+        modeSelect.addEventListener('change', function () {
+          const value = modeSelect.value;
+          playMode = value === 'loop' || value === 'sequence' ? value : 'once';
+          try { localStorage.setItem(MODE_KEY, playMode); } catch (_) { }
+        });
+      }
 
       document.addEventListener('echoflow:play-sentence', function (event) {
         const index = Number(event.detail && event.detail.index);

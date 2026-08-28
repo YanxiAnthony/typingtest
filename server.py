@@ -268,14 +268,16 @@ class EchoFlowHandler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")
+        # 静态页面/脚本必须成对刷新，避免浏览器用旧 HTML 配新 JS；每次回源校验（未改动时返回 304）
+        self.send_header("Cache-Control", getattr(self, "_cache_control", "no-cache"))
         super().end_headers()
 
     def send_json(self, payload, status=HTTPStatus.OK):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self._cache_control = "no-store"
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -366,7 +368,16 @@ def main():
 
     EchoFlowHandler.database = PracticeDatabase(args.database)
     handler = partial(EchoFlowHandler, directory=str(ROOT))
-    server = ThreadingHTTPServer((args.host, args.port), handler)
+    try:
+        server = ThreadingHTTPServer((args.host, args.port), handler)
+    except OSError as error:
+        print(f"启动失败：{error}")
+        print(f"端口 {args.port} 可能已被占用。若服务已经在运行，直接访问 http://{args.host}:{args.port}/ 即可。")
+        try:
+            input("按回车键关闭窗口…")
+        except EOFError:
+            pass
+        return
     print(f"EchoFlow: http://{args.host}:{args.port}/")
     print(f"Practice database: {args.database}")
     try:
