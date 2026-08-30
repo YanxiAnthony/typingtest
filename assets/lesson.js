@@ -253,6 +253,10 @@
 
     async function getDefaultCatalog() {
       if (defaultCatalog) return defaultCatalog;
+      if (Array.isArray(window.NCE_DEFAULT_LIBRARY)) {
+        defaultCatalog = window.NCE_DEFAULT_LIBRARY;
+        return defaultCatalog;
+      }
       const response = await fetch('assets/default-library.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('默认课程目录读取失败');
       defaultCatalog = await response.json();
@@ -264,6 +268,7 @@
       const catalog = await getDefaultCatalog();
       const lesson = catalog.find(function (item) { return item.filename === filename; });
       if (!lesson) return null;
+      if (lesson.lrcText) return lesson;
       const response = await fetch(lesson.lrcUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error('默认 LRC 文件读取失败');
       return Object.assign({}, lesson, { lrcText: await response.text() });

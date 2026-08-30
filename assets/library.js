@@ -30,6 +30,10 @@
 
     async function loadDefaultLessons() {
       if (defaultLessons.length) return defaultLessons;
+      if (Array.isArray(window.NCE_DEFAULT_LIBRARY)) {
+        defaultLessons = window.NCE_DEFAULT_LIBRARY;
+        return defaultLessons;
+      }
       const response = await fetch('assets/default-library.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('默认课程目录读取失败');
       defaultLessons = await response.json();
@@ -66,6 +70,12 @@
 
     async function renderLibrary() {
       const defaults = await loadDefaultLessons().catch(function () { return []; });
+      allLessons = defaults.slice().sort(function (a, b) {
+        return a.filename.localeCompare(b.filename, 'zh-CN', { numeric: true });
+      });
+      refreshFilterOptions();
+      renderCards();
+
       const imported = await store.listLessons(importer.LIB).catch(function () { return []; });
       imported.forEach(function (lesson) {
         lesson.group = '我的导入';
