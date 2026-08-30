@@ -302,7 +302,14 @@ class EchoFlowHandler(SimpleHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         if path == "/api/health":
-            self.send_json({"ok": True, "storage": "sqlite"})
+            # The launcher uses projectRoot to distinguish this checkout from an
+            # older copy that may still be listening on the same localhost port.
+            self.send_json({
+                "ok": True,
+                "app": "EchoFlow",
+                "storage": "sqlite",
+                "projectRoot": str(ROOT),
+            })
             return
         if path == "/api/practice/export.json":
             payload = self.database.export_data()

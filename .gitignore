@@ -3,4 +3,10 @@ data/*.db-shm
 data/*.db-wal
 __pycache__/
 *.pyc
+android/.gradle/
+android/app/build/
+android/build/
+android/typing.keystore
+android/keystore.properties
+*.apk
 NCE

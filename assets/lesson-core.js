@@ -64,5 +64,33 @@
     return Math.floor(value / 60) + ':' + String(value % 60).padStart(2, '0');
   }
 
-  return { parseLrc, formatTime };
+  // 解析多课循环的课号输入：支持 "1,3"、"1、3"、"1-3"、"3-1"、"1~3" 等混合写法，按输入顺序去重。
+  // total 为当前分组课程总数，超出 1..total 的课号忽略；total 非正数时不做范围过滤。
+  function parseLessonRangeSpec(text, total) {
+    const limit = Number.isFinite(total) && total > 0 ? Math.floor(total) : 0;
+    const numbers = [];
+    String(text || '')
+      .split(/[\s,，、;；]+/)
+      .forEach(function (token) {
+        const match = token.match(/^(\d+)(?:[-~－至](\d+))?$/);
+        if (!match) return;
+        const from = Number(match[1]);
+        const to = match[2] === undefined ? from : Number(match[2]);
+        const step = from <= to ? 1 : -1;
+        for (let n = from; step > 0 ? n <= to : n >= to; n += step) {
+          if (n >= 1 && (!limit || n <= limit) && numbers.indexOf(n) === -1) numbers.push(n);
+        }
+      });
+    return numbers;
+  }
+
+  // 多课循环队列中 current 课号的下一课（到队尾回到队首）；current 不在队列或未知时从队首开始。
+  function nextLoopLesson(queue, current) {
+    if (!Array.isArray(queue) || !queue.length) return 0;
+    const index = queue.indexOf(Number(current));
+    if (index === -1) return queue[0];
+    return queue[(index + 1) % queue.length];
+  }
+
+  return { parseLrc, formatTime, parseLessonRangeSpec, nextLoopLesson };
 });

@@ -1,3 +1,4 @@
+import json
 import os
 import sqlite3
 import sys
@@ -138,6 +139,9 @@ class PracticeHandlerTests(unittest.TestCase):
     def test_health_is_available_but_data_directory_is_private(self):
         with urllib.request.urlopen(self.base_url + "/api/health") as response:
             self.assertEqual(response.status, 200)
+            health = json.load(response)
+            self.assertEqual(health["app"], "EchoFlow")
+            self.assertEqual(Path(health["projectRoot"]), ROOT)
         with urllib.request.urlopen(self.base_url + "/tests/typing-browser-smoke.html") as response:
             self.assertEqual(response.status, 200)
 

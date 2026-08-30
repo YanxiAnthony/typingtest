@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.application'
+}
+
+def webRoot = file('../..')
+def generatedAssets = layout.buildDirectory.dir('generated/typingAssets')
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+    ['storeFile', 'storePassword', 'keyAlias', 'keyPassword'].each { key ->
+        if (!keystoreProperties[key]) {
+            throw new GradleException("Missing ${key} in ${keystorePropertiesFile}")
+        }
+    }
+}
+
+android {
+    namespace 'com.local.echoflow'
+    compileSdk 35
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        applicationId 'com.local.echoflow'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    sourceSets {
+        main.assets.srcDir(generatedAssets)
+    }
+
+    androidResources {
+        noCompress += ['mp3', 'm4a', 'ogg', 'wav']
+    }
+
+    signingConfigs {
+        fixed {
+            if (keystorePropertiesFile.exists()) {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.fixed
+            }
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.fixed
+            }
+        }
+    }
+}
+
+tasks.register('prepareWebAssets', Sync) {
+    into(generatedAssets)
+
+    into('www') {
+        from(webRoot)
+        include 'index.html'
+        include 'lesson.html'
+        include 'assets/**'
+    }
+
+    into('www/NCE') {
+        from(new File(webRoot, 'NCE'))
+        include '**/*.mp3'
+        include '**/*.m4a'
+        include '**/*.ogg'
+        include '**/*.wav'
+        include '**/*.lrc'
+    }
+}
+
+tasks.named('preBuild').configure {
+    dependsOn(tasks.named('prepareWebAssets'))
+}

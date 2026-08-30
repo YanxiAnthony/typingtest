@@ -10,6 +10,7 @@
   const LEGACY_COUNT_KEY = 'echoflow_typing_practice_counts_v1';
   const LEGACY_MIGRATION_KEY = 'legacyCountsMigratedV1';
   const SYNC_ENDPOINT = '/api/practice/sync';
+  const SERVER_SYNC_ENABLED = window.location.protocol !== 'file:';
   let dbPromise = null;
   let initPromise = null;
   let syncPromise = null;
@@ -165,6 +166,9 @@
   }
 
   function syncNow() {
+    if (!SERVER_SYNC_ENABLED) {
+      return Promise.resolve({ online: false, disabled: true });
+    }
     if (syncPromise) {
       syncRequested = true;
       return syncPromise;
